@@ -8,11 +8,13 @@ cors = CORS(app, origins='*')
 
 def home():
     data = request.get_json()
+
+    print(type(data))
     first_name = data.get('first_name')
     last_name = data.get('last_name')
     email = data.get('email')
 
-    return ("Data received")
+    return (data)
 
 if __name__ == '__main__':
     app.run(debug=True)
