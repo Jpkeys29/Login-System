@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios';
+import { Card, CardBody, CardHeader, Heading, Divider, FormControl, FormLabel, FormHelperText, Button, Input, Box } from '@chakra-ui/react';
 
 function App() {
   const [user, setUser] = useState({
@@ -32,17 +33,24 @@ function App() {
   }, [])
 
   return (
-    <>
-      <form onSubmit={fetchUser}>
-        First Name: <input type='text' name='firstName' value={user.firstName} onChange={handleChange} ></input>
-        <div>
-          Last Name: <input type='text' name='lastName' value={user.lastName} onChange={handleChange} ></input>
-        </div>
-        Email: <input type='text' name='email' value={user.email} onChange={handleChange} ></input>
-        <br></br>
-        <button type='submit'>Submit</button>
-      </form>
-    </>
+    <Box display='flex' alignItems='center' justifyContent='center' bg="#F3CCF3" height='900px'>
+      <Card width='50%' p={5} bg='#640D6B' fontSize='18px' >
+        <CardHeader align='center' fontSize='30px' textColor='white'>Login</CardHeader>
+        <Divider borderColor='white'></Divider>
+        <CardBody justifyContent='center' fontSize='25px' >
+          <form onSubmit={fetchUser}>
+            <FormLabel textColor='white' fontSize='20px'>First Name</FormLabel>
+            <input type='text' name='firstName' value={user.firstName} onChange={handleChange}/>
+            <FormLabel textColor='white' fontSize='20px'>Last Name</FormLabel>
+            <input type='text' name='lastName' value={user.lastName} onChange={handleChange} />
+            <FormLabel textColor='white' fontSize='20px'>Email</FormLabel>
+            <input type='text' name='email' value={user.email} onChange={handleChange} />
+            <br />
+            <Button type='submit' mt={5}>Submit</Button>
+          </form>
+        </CardBody>
+      </Card>
+    </Box>
   )
 }
 
