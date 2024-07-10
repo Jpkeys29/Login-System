@@ -6,7 +6,7 @@ from sqlalchemy import create_engine  # Import create_engine
 from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
-cors = CORS(app, origins='*')
+cors = CORS(app, origins=['http://localhost:5000'])
 bcrypt = Bcrypt(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://root:Dor!ta0822@localhost/user_login'
@@ -15,7 +15,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class User(db.Model):
-   useID = db.Column(db.Integer, primary_key = True)
+   id = db.Column(db.Integer, primary_key = True)
    first_name = db.Column(db.String(45), nullable = False)
    last_name = db.Column(db.String(45), nullable = False)
    email = db.Column(db.String(45), nullable = False, unique= True)
@@ -52,9 +52,9 @@ def home():
         'email': email
     }}), 201
 
-@app.route('/dashboard')
-def dashboard():
-    return 'Hola'
+# @app.route('/dashboard')
+# def dashboard():
+#     return 'Hola'
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
