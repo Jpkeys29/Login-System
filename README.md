@@ -1,0 +1,1 @@
+Login system using Python (Flask) for the backend and React with Chakra UI for the frontend. Including PostgreSQL to store user credentials.
