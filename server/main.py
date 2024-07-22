@@ -11,12 +11,12 @@ bcrypt = Bcrypt(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://root:Dor!ta0822@localhost/user_login" #Specifying the location of the local sql database
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# app.config['SECRET_KEY'] = 'Racecar'
-# app.config['JWT_SECRET_KEY'] = 'GOT24'
-# app.config['JWT_TOKEN_LOCATION'] = ['headers']
+app.config['SECRET_KEY'] = 'Racecar'
+app.config['JWT_SECRET_KEY'] = 'GOT24'
+app.config['JWT_TOKEN_LOCATION'] = ['headers']
 
 db = SQLAlchemy(app)  #Creates a db instance
-# jwt = JWTManager(app)
+jwt = JWTManager(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(45), nullable = False)
@@ -49,32 +49,33 @@ def register():
         'username' : username
     }}), 201
 
-# @app.route('/get_name', methods=['GET'])
-# @jwt_required()
-# def get_name():
-#     # Extract the user ID from the JWT
-#     user_id = get_jwt_identity()
-#     user = User.query.filter_by(id=user_id).first()
+@app.route('/get_name', methods=['GET'])
+@jwt_required()
+def get_name():
+    # Extract the user ID from the JWT
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(id=user_id).first()
 
-#     if user:
-#         return jsonify({'message' : 'User found', 'name' : user.name})
-#     else:
-#         return jsonify({'message' : 'User not found'}), 404
+    if user:
+        return jsonify({'message' : 'User found', 'name' : user.name})
+    else:
+        return jsonify({'message' : 'User not found'}), 404
     
-# @app.route('/login', methods=['POST'])
-# def login():
-#     data = request.get_json()
-#     username = data['username']
-#     password = data['password']
-#     print('Received data:', username, password)
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
+    print('Received data:', username, password)
 
-#     user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(username=username).first()  #User verification
 
-#     if user and bcrypt.check_password_hash(user.password, password):
-#         access_token = create_access_token(identify=user.id)
-#         return jsonify({'message' : 'Login Success', 'access_token' : access_token})
-#     else:
-#         return jsonify({'message' : 'Login Failed'}), 401
+    if user and bcrypt.check_password_hash(user.password, password):  #Authentication check
+        access_token = create_access_token(identity=user.id)
+        print(access_token)
+        return jsonify({'message' : 'Login Success', 'access_token' : access_token})
+    else:
+        return jsonify({'message' : 'Login Failed'}), 401
     
 
 

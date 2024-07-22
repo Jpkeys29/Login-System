@@ -18,7 +18,7 @@ const RegisterForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://127.0.0.1:5000/register', JSON.stringify(userData), { headers: { 'Content-Type': 'application/json' } });
+            const response = await axios.post('http://127.0.0.1:5000/register', JSON.stringify(userData), { headers: { 'Content-Type': 'application/json' }});
             console.log("FROM REACT", response);
         } catch (error) {
             console.log('Error registering user:', error);
