@@ -7,6 +7,7 @@ const RegisterForm = () => {
         first_name: '',
         last_name: '',
         email: '',
+        username: '',
         password: ''
     });
 
@@ -27,7 +28,7 @@ const RegisterForm = () => {
     return (
         <Box display='flex' alignItems='center' justifyContent='center' bg="#B1AFFF" height='900px'>
             <Card width='30%' p={5} bg='#640D6B' fontSize='18px'>
-                <CardHeader align='center' fontSize='30px' textColor='white'>Login</CardHeader>
+                <CardHeader align='center' fontSize='30px' textColor='white'>Register</CardHeader>
                 <Divider borderColor='white'></Divider>
                 <CardBody>
                     <form onSubmit={handleSubmit}>
@@ -37,10 +38,12 @@ const RegisterForm = () => {
                         <input type="text" name="last_name" value={userData.last_name} onChange={handleChange} />
                         <FormLabel textColor='white' fontSize='20px'>Email:</FormLabel>
                         <input type="email" name="email" value={userData.email} onChange={handleChange} />
+                        <FormLabel textColor='white' fontSize='20px'>Username:</FormLabel>
+                        <input type="text" name="username" value={userData.username} onChange={handleChange}/>
                         <FormLabel textColor='white' fontSize='20px'>Password:</FormLabel>
                         <input type="password" name="password" value={userData.password} onChange={handleChange} />
                         <br /> <br />
-                        <Button type="submit">Register</Button>
+                        <Button type="submit">Submit</Button>
                     </form>
                 </CardBody>
             </Card>
