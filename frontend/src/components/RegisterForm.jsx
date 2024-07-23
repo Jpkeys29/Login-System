@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import { Box, Card, CardHeader, CardBody, Divider, FormLabel, Button } from '@chakra-ui/react';
+import Login from "./Login";
 
 const RegisterForm = () => {
     const [userData, setUserData] = useState({
@@ -18,7 +19,7 @@ const RegisterForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://127.0.0.1:5000/register', JSON.stringify(userData), { headers: { 'Content-Type': 'application/json' }});
+            const response = await axios.post('http://127.0.0.1:5000/register', JSON.stringify(userData), { headers: { 'Content-Type': 'application/json' } });
             console.log("FROM REACT", response);
         } catch (error) {
             console.log('Error registering user:', error);
@@ -39,12 +40,13 @@ const RegisterForm = () => {
                         <FormLabel textColor='white' fontSize='20px'>Email:</FormLabel>
                         <input type="email" name="email" value={userData.email} onChange={handleChange} />
                         <FormLabel textColor='white' fontSize='20px'>Username:</FormLabel>
-                        <input type="text" name="username" value={userData.username} onChange={handleChange}/>
+                        <input type="text" name="username" value={userData.username} onChange={handleChange} />
                         <FormLabel textColor='white' fontSize='20px'>Password:</FormLabel>
                         <input type="password" name="password" value={userData.password} onChange={handleChange} />
                         <br /> <br />
                         <Button type="submit">Submit</Button>
                     </form>
+                    <Login />
                 </CardBody>
             </Card>
         </Box>
