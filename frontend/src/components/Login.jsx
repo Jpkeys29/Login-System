@@ -1,12 +1,14 @@
 import axios from "axios";
 import { useState } from "react";
 import { Box, Card, CardHeader, CardBody, Divider, FormLabel, Button } from '@chakra-ui/react';
+import { useNavigate } from "react-router-dom";
 
 function Login() {
     const [userLogin, setUserLogin] = useState({
         username: '',
         password: ''
     });
+    const navigate = useNavigate();
 
     const handleChange = (event) => {
         setUserLogin({ ...userLogin, [event.target.name]: event.target.value });
@@ -15,12 +17,22 @@ function Login() {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+
+
         try {
             const response = await axios.post('http://127.0.0.1:5000/login', JSON.stringify(userLogin), { headers: { 'Content-Type': 'application/json' } })
             localStorage.setItem("access_token", response.data.access_token);
             alert("Login successful");
+
+            if (response.status === 200){
+                navigate('/dashboard');
+            } else {
+                console.error('No dashboard for you!')
+                alert('No dashboard for you!')
+            }
         } catch (error) {
             console.log('Error registering user:', error);
+            alert("An error ocurred. Please try again")
         }
     };
     return (

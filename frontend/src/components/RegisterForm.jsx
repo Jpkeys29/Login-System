@@ -11,7 +11,7 @@ const RegisterForm = () => {
         username: '',
         password: ''
     });
-
+    
     const handleChange = (event) => {
         setUserData({ ...userData, [event.target.name]: event.target.value });  //Creating a new object based on the existing userData updated by the changed field event.target.name with the new value event.target.value 
     };
@@ -21,6 +21,7 @@ const RegisterForm = () => {
         try {
             const response = await axios.post('http://127.0.0.1:5000/register', JSON.stringify(userData), { headers: { 'Content-Type': 'application/json' } });
             console.log("FROM REACT", response);
+            
         } catch (error) {
             console.log('Error registering user:', error);
         }
