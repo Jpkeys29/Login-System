@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import { Box, Card, CardHeader, CardBody, Divider, FormLabel, Button } from '@chakra-ui/react';
 import Login from "./Login";
+import { useNavigate } from "react-router-dom";
 
 const RegisterForm = () => {
     const [userData, setUserData] = useState({
@@ -11,6 +12,7 @@ const RegisterForm = () => {
         username: '',
         password: ''
     });
+    const navigate = useNavigate();
     
     const handleChange = (event) => {
         setUserData({ ...userData, [event.target.name]: event.target.value });  //Creating a new object based on the existing userData updated by the changed field event.target.name with the new value event.target.value 
@@ -21,6 +23,15 @@ const RegisterForm = () => {
         try {
             const response = await axios.post('http://127.0.0.1:5000/register', JSON.stringify(userData), { headers: { 'Content-Type': 'application/json' } });
             console.log("FROM REACT", response);
+            localStorage.setItem("access_token", response.data.access_token);
+            // alert('Register successful');
+
+            if (response.status === 201){
+                navigate('/dashboard');
+            } else {
+                console.error('No dashboard for you!')
+                alert('No dashboard for you!')
+            }
             
         } catch (error) {
             console.log('Error registering user:', error);
