@@ -8,6 +8,7 @@ function Login() {
         username: '',
         password: ''
     });
+    
     const navigate = useNavigate();
 
     const handleChange = (event) => {
@@ -16,13 +17,11 @@ function Login() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
-
-
         try {
             const response = await axios.post('http://127.0.0.1:5000/login', JSON.stringify(userLogin), { headers: { 'Content-Type': 'application/json' } })
+            console.log("FROM REACT", response);
             localStorage.setItem("access_token", response.data.access_token);
-            alert("Login successful");
+            // alert("Login successful");
 
             if (response.status === 200){
                 navigate('/dashboard');
@@ -31,8 +30,8 @@ function Login() {
                 alert('No dashboard for you!')
             }
         } catch (error) {
-            console.log('Error registering user:', error);
-            alert("An error ocurred. Please try again")
+            console.log('Invalid username or email', error);
+            alert("Invalid username or email. Please try again")
         }
     };
     return (

@@ -23,8 +23,6 @@ const RegisterForm = () => {
         try {
             const response = await axios.post('http://127.0.0.1:5000/register', JSON.stringify(userData), { headers: { 'Content-Type': 'application/json' } });
             console.log("FROM REACT", response);
-            localStorage.setItem("access_token", response.data.access_token);
-            // alert('Register successful');
 
             if (response.status === 201){
                 navigate('/dashboard');
@@ -56,7 +54,7 @@ const RegisterForm = () => {
                         <FormLabel textColor='white' fontSize='20px'>Password:</FormLabel>
                         <input type="password" name="password" value={userData.password} onChange={handleChange} />
                         <br /> <br />
-                        <Button type="submit">Submit</Button>
+                        <Button type="submit">Sign up</Button>
                     </form>
                     <Login />
                 </CardBody>

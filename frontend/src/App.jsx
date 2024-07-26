@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import RegisterForm from './components/RegisterForm';
 import { Route, Routes } from 'react-router-dom';
+import RegisterForm from './components/RegisterForm';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 

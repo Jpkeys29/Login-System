@@ -4,19 +4,19 @@ from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 
-app= Flask(__name__)  #Initializes the Flask application
-cors = CORS(app)
-bcrypt = Bcrypt(app)
+app= Flask(__name__)  #Creates a Flask application instance
+cors = CORS(app)  #Allows interaction between different domains
+bcrypt = Bcrypt(app) #Initializes Bcrypt object for password hashing
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://root:Dor!ta0822@localhost/user_login" #Specifying the location of the local sql database
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://root:Dor!ta0822@localhost/user_login" #Specifies the location of the local sql database
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-app.config['SECRET_KEY'] = 'Racecar'
-app.config['JWT_SECRET_KEY'] = 'GOT24'
-app.config['JWT_TOKEN_LOCATION'] = ['headers']
+app.config['SECRET_KEY'] = 'Racecar' #Used for various security purposes
+app.config['JWT_SECRET_KEY'] = 'GOT24' #Used for signing and veryfing JWTs
+app.config['JWT_TOKEN_LOCATION'] = ['headers'] #Specifies where JWT will be located
 
 db = SQLAlchemy(app)  #Creates a db instance
-jwt = JWTManager(app)
+jwt = JWTManager(app) #Initializes a JWTManager instance and binds it to the Flask application
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(45), nullable = False)
@@ -48,19 +48,7 @@ def register():
         'email' : email,
         'username' : username
     }}), 201
-
-@app.route('/get_name', methods=['GET'])
-@jwt_required()
-def get_name():
-    # Extract the user ID from the JWT
-    user_id = get_jwt_identity()
-    user = User.query.filter_by(id=user_id).first()
-
-    if user:
-        return jsonify({'message' : 'User found', 'name' : user.name})
-    else:
-        return jsonify({'message' : 'User not found'}), 404
-    
+   
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -76,6 +64,18 @@ def login():
         return jsonify({'message' : 'Login Success', 'access_token' : access_token})
     else:
         return jsonify({'message' : 'Login Failed'}), 401
+    
+@app.route('/get_name', methods=['GET'])
+@jwt_required()
+def get_name():
+    # Extract the user ID from the JWT
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(id=user_id).first()
+
+    if user:
+        return jsonify({'message' : 'User found', 'First name' : user.first_name, 'Last Name' : user.last_name, 'Username' : user.username })
+    else:
+        return jsonify({'message' : 'User not found'}), 404
     
 
 
