@@ -37,7 +37,7 @@ const RegisterForm = () => {
     };
 
     return (
-        <Box display='flex' alignItems='center' justifyContent='center' bg="#B1AFFF" height='900px'>
+        <Box display='flex' alignItems='center' justifyContent='center' bg="#B1AFFF" height='1200px'>
             <Card width='30%' p={5} bg='#640D6B' fontSize='18px'>
                 <CardHeader align='center' fontSize='30px' textColor='white'>Register</CardHeader>
                 <Divider borderColor='white'></Divider>

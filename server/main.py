@@ -73,7 +73,7 @@ def get_name():
     user = User.query.filter_by(id=user_id).first()
 
     if user:
-        return jsonify({'message' : 'User found', 'First name' : user.first_name, 'Last Name' : user.last_name, 'Username' : user.username })
+        return jsonify({'message' : 'User found', 'First_name': user.first_name, 'Last_name': user.last_name, 'Username': user.username })
     else:
         return jsonify({'message' : 'User not found'}), 404
     
