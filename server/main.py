@@ -1,12 +1,13 @@
-from flask import Flask, request, jsonify, redirect, flash
+from flask import Flask, request, jsonify, redirect, flash, url_for, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 from itsdangerous import URLSafeTimedSerializer
-from flask_mail import Mail
+from flask_mail import Mail, Message
 import os
 from dotenv import load_dotenv
+from datetime import datetime, timezone
 
 app= Flask(__name__)  #Creates a Flask application instance
 cors = CORS(app)  #Allows interaction between different domains
@@ -35,11 +36,11 @@ class User(db.Model):
     username = db.Column(db.String(45), nullable = False)
     password = db.Column(db.String(150), nullable=False) 
     is_confirmed = db.Column(db.Boolean, nullable=False, default=False)
-    confirmed_on = db.Column(db.DateTime, nullable=True)
+    confirmed_on = db.Column(db.DateTime, nullable=True, default=None)
 
 class Config(object):
     MAIL_DEFAULT_SENDER = "noreply@flask.com"
-    MAI_SERVER = "smtp.gmail.com"
+    MAIL_SERVER = "smtp.gmail.com"
     MAIL_PORT = 465
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
@@ -52,43 +53,57 @@ class Config(object):
         if not server_email or server_password:
             raise ValueError("Missing environment variables")
         self.MAIL_USERNAME = server_email
-        self.MAIL_PASSWORD = server_password
-    
-    
+        self.MAIL_PASSWORD = server_password  
 
 def generate_token(email):
-    serializer = URLSafeTimedSerializer(app.config["Hod2024"])
+    serializer = URLSafeTimedSerializer("Hod2024")
     return serializer.dumps(email)
 
 def confirm_token(token, expiration=3600):
-    serializer = URLSafeTimedSerializer(app.config["Hod2024"])
+    serializer = URLSafeTimedSerializer("Hod2024")
     try:
         email = serializer.loads( token, max_age=expiration)
         return email
     except Exception:
         return False
+    
+def send_email(to, subject, template):
+    msg = Message(
+        subject,
+        recipients=[to],
+        html=template,
+        sender=os.getenv('SERVER_EMAIL'),
+    )
+    mail.send(msg)
 
 @app.route('/register', methods=['GET','POST'])
 def register():
     user_data = request.get_json()
     print(user_data)
-
     first_name = user_data.get('first_name')
     last_name = user_data.get('last_name')
     email = user_data.get('email')
     username = user_data.get('username')
     password = user_data['password']
-    is_confirmed = user_data('is_confirmed')
-    confirmed_on = user_data('confirmed_on')
+    is_confirmed = user_data.get('is_confirmed', False)
+    confirmed_on = None
 
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8') #Hashing password before storing it
 
-    new_user = User(first_name=first_name, last_name=last_name, email=email, username=username, password=hashed_password, is_confirmed=is_confirmed, confirmed_on=confirmed_on) #Adding new user to db
+    new_user = User(first_name=first_name, last_name=last_name, email=email, username=username, password=hashed_password, is_confirmed=is_confirmed, confirmed_on=datetime.now(timezone.utc)) #Adding new user to db
     db.session.add(new_user)
     db.session.commit()
-    token = generate_token(new_user.email)
 
-    return jsonify({ 'message' : 'User created successfully', 'user': {
+    token = generate_token(new_user.email)
+    confirm_url = url_for("confirm_email", token=token, _external=True)
+    html = render_template("confirm_email.html", confirm_url=confirm_url)
+    subject = "Please confirm your email"
+    send_email(new_user.email, subject, html)
+
+    # login_user(user_data)
+
+
+    return jsonify({ 'message' : 'User created successfully and confirmation email sent', 'user': {
         'first_name': first_name,
         'last_name' : last_name,
         'email' : email,
