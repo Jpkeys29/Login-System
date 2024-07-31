@@ -4,10 +4,15 @@ from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Mail
+import os
+from dotenv import load_dotenv
 
 app= Flask(__name__)  #Creates a Flask application instance
 cors = CORS(app)  #Allows interaction between different domains
 bcrypt = Bcrypt(app) #Initializes Bcrypt object for password hashing
+mail = Mail(app)
+load_dotenv()
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://root:Dor!ta0822@localhost/user_login" #Specifies the location of the local sql database
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -27,6 +32,17 @@ class User(db.Model):
     password = db.Column(db.String(150), nullable=False) 
     is_confirmed = db.Column(db.Boolean, nullable=False, default=False)
     confirmed_on = db.Column(db.DateTime, nullable=True)
+
+class Config(object):
+    MAIL_DEFAULT_SENDER = "noreply@flask.com"
+    MAI_SERVER = "smtp.gmail.com"
+    MAIL_PORT = 465
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    MAIL_DEBUG = False
+    MAIL_USERNAME = "EMAIL_USER"
+    MAIL_PASSWORD = "EMAIL_PASSWORD"
+    
 
 def generate_token(email):
     serializer = URLSafeTimedSerializer(app.config["Hod2024"])
