@@ -14,6 +14,10 @@ bcrypt = Bcrypt(app) #Initializes Bcrypt object for password hashing
 mail = Mail(app)
 load_dotenv()
 
+server_email = os.getenv('SERVER_EMAIL')
+server_password = os.getenv('SERVER_PASSWORD')
+
+
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://root:Dor!ta0822@localhost/user_login" #Specifies the location of the local sql database
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -40,8 +44,16 @@ class Config(object):
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
     MAIL_DEBUG = False
-    MAIL_USERNAME = "EMAIL_USER"
-    MAIL_PASSWORD = "EMAIL_PASSWORD"
+
+    def __init__(self):
+        server_email = os.getenv('SERVER_EMAIL')
+        server_password = os.getenv('SERVER_PASSWORD')
+
+        if not server_email or server_password:
+            raise ValueError("Missing environment variables")
+        self.MAIL_USERNAME = server_email
+        self.MAIL_PASSWORD = server_password
+    
     
 
 def generate_token(email):
