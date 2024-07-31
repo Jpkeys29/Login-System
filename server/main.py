@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, redirect
+from flask import Flask, request, jsonify, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
+from itsdangerous import URLSafeTimedSerializer
 
 app= Flask(__name__)  #Creates a Flask application instance
 cors = CORS(app)  #Allows interaction between different domains
@@ -24,8 +25,22 @@ class User(db.Model):
     email = db.Column(db.String(45), nullable = False, unique= True)
     username = db.Column(db.String(45), nullable = False)
     password = db.Column(db.String(150), nullable=False) 
+    is_confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    confirmed_on = db.Column(db.DateTime, nullable=True)
 
-@app.route('/register', methods=['POST'])
+def generate_token(email):
+    serializer = URLSafeTimedSerializer(app.config["Hod2024"])
+    return serializer.dumps(email)
+
+def confirm_token(token, expiration=3600):
+    serializer = URLSafeTimedSerializer(app.config["Hod2024"])
+    try:
+        email = serializer.loads( token, max_age=expiration)
+        return email
+    except Exception:
+        return False
+
+@app.route('/register', methods=['GET','POST'])
 def register():
     user_data = request.get_json()
     print(user_data)
@@ -35,18 +50,23 @@ def register():
     email = user_data.get('email')
     username = user_data.get('username')
     password = user_data['password']
+    is_confirmed = user_data('is_confirmed')
+    confirmed_on = user_data('confirmed_on')
 
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8') #Hashing password before storing it
 
-    new_user = User(first_name=first_name, last_name=last_name, email=email, username=username, password=hashed_password) #Adding new user to db
+    new_user = User(first_name=first_name, last_name=last_name, email=email, username=username, password=hashed_password, is_confirmed=is_confirmed, confirmed_on=confirmed_on) #Adding new user to db
     db.session.add(new_user)
     db.session.commit()
+    token = generate_token(new_user.email)
 
     return jsonify({ 'message' : 'User created successfully', 'user': {
         'first_name': first_name,
         'last_name' : last_name,
         'email' : email,
-        'username' : username
+        'username' : username,
+        'is_confirmed': is_confirmed,
+        'confirmed_on' : confirmed_on
     }}), 201
    
 @app.route('/login', methods=['POST'])
@@ -77,6 +97,16 @@ def get_name():
     else:
         return jsonify({'message' : 'User not found'}), 404
     
+@app.route('/confirm/<token>')
+def confirm_email(token):
+    email = confirm_token(token)
+    user = User.query.filter_by(email = email).first_or_404()
+    user.is_confirmed = True
+    user.confirmed_on = datetime.now()
+    db.session.add(user)
+    db.session.commit()
+    flash('Account confirmed. Thank you!')
+    return jsonify({'success' : True, 'redirect_url' : '/'})
 
 
 if __name__ == "__main__": 
