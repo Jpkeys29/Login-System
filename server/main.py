@@ -12,7 +12,6 @@ from datetime import datetime, timezone
 app= Flask(__name__)  #Creates a Flask application instance
 cors = CORS(app)  #Allows interaction between different domains
 bcrypt = Bcrypt(app) #Initializes Bcrypt object for password hashing
-mail = Mail(app)
 load_dotenv()
 
 server_email = os.getenv('SERVER_EMAIL')
@@ -39,21 +38,35 @@ class User(db.Model):
     confirmed_on = db.Column(db.DateTime, nullable=True, default=None)
 
 class Config(object):
-    MAIL_DEFAULT_SENDER = "noreply@flask.com"
+    MAIL_DEFAULT_SENDER = os.getenv('SERVER_EMAIL')
     MAIL_SERVER = "smtp.gmail.com"
     MAIL_PORT = 465
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
-    MAIL_DEBUG = False
+    MAIL_USERNAME = os.getenv('SERVER_EMAIL')
+    MAIL_PASSWORD = os.getenv('SERVER_PASSWORD')
+    MAIL_DEBUG = True
 
-    def __init__(self):
-        server_email = os.getenv('SERVER_EMAIL')
-        server_password = os.getenv('SERVER_PASSWORD')
+    # def __init__(self):
+    #     server_email = os.getenv('SERVER_EMAIL')
+    #     server_password = os.getenv('SERVER_PASSWORD')
 
-        if not server_email or server_password:
-            raise ValueError("Missing environment variables")
-        self.MAIL_USERNAME = server_email
-        self.MAIL_PASSWORD = server_password  
+    #     if not server_email or not server_password:
+    #         raise ValueError("Missing environment variables")
+    #     self.MAIL_USERNAME = server_email
+    #     self.MAIL_PASSWORD = server_password  
+
+app.config.from_object(Config())
+mail = Mail(app)
+    
+def send_email(to, subject, template):
+    msg = Message(
+        subject,
+        recipients=[to],
+        html=template,
+        sender=os.getenv('SERVER_EMAIL'),
+    )
+    mail.send(msg)
 
 def generate_token(email):
     serializer = URLSafeTimedSerializer("Hod2024")
@@ -67,15 +80,6 @@ def confirm_token(token, expiration=3600):
     except Exception:
         return False
     
-def send_email(to, subject, template):
-    msg = Message(
-        subject,
-        recipients=[to],
-        html=template,
-        sender=os.getenv('SERVER_EMAIL'),
-    )
-    mail.send(msg)
-
 @app.route('/register', methods=['GET','POST'])
 def register():
     user_data = request.get_json()
@@ -101,8 +105,6 @@ def register():
     send_email(new_user.email, subject, html)
 
     # login_user(user_data)
-
-
     return jsonify({ 'message' : 'User created successfully and confirmation email sent', 'user': {
         'first_name': first_name,
         'last_name' : last_name,
@@ -155,5 +157,6 @@ def confirm_email(token):
 if __name__ == "__main__": 
     with app.app_context():   #Creates a db if it does not exist
         db.create_all()
+
     app.run(debug=True)
 
