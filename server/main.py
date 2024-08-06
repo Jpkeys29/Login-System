@@ -46,16 +46,7 @@ class Config(object):
     MAIL_USERNAME = os.getenv('SERVER_EMAIL')
     MAIL_PASSWORD = os.getenv('SERVER_PASSWORD')
     MAIL_DEBUG = True
-
-    # def __init__(self):
-    #     server_email = os.getenv('SERVER_EMAIL')
-    #     server_password = os.getenv('SERVER_PASSWORD')
-
-    #     if not server_email or not server_password:
-    #         raise ValueError("Missing environment variables")
-    #     self.MAIL_USERNAME = server_email
-    #     self.MAIL_PASSWORD = server_password  
-
+ 
 app.config.from_object(Config())
 mail = Mail(app)
     
@@ -105,7 +96,7 @@ def register():
     send_email(new_user.email, subject, html)
 
     # login_user(user_data)
-    return jsonify({ 'message' : 'User created successfully and confirmation email sent', 'user': {
+    return jsonify({ 'message' : 'User created successfully and confirmation email sent', 'redirect': url_for(inactive), 'user': {
         'first_name': first_name,
         'last_name' : last_name,
         'email' : email,
@@ -114,6 +105,11 @@ def register():
         'confirmed_on' : confirmed_on
     }}), 201
    
+@app.route("/inactive")
+def inactive():
+    if user.is_confirmed:
+        return jsonify({'redirect':url_for('dashboard')})
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -129,6 +125,7 @@ def login():
         return jsonify({'message' : 'Login Success', 'access_token' : access_token})
     else:
         return jsonify({'message' : 'Login Failed'}), 401
+    
     
 @app.route('/get_name', methods=['GET'])
 @jwt_required()
@@ -151,7 +148,7 @@ def confirm_email(token):
     db.session.add(user)
     db.session.commit()
     flash('Account confirmed. Thank you!')
-    return jsonify({'success' : True, 'redirect_url' : '/'})
+    return jsonify({'success' : True, 'redirect_url' : '/get_name'})
 
 
 if __name__ == "__main__": 
