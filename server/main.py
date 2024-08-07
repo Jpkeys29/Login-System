@@ -8,6 +8,7 @@ from flask_mail import Mail, Message
 import os
 from dotenv import load_dotenv
 from datetime import datetime, timezone
+from flask_login import current_user
 
 app= Flask(__name__)  #Creates a Flask application instance
 cors = CORS(app)  #Allows interaction between different domains
@@ -63,7 +64,7 @@ def generate_token(email):
     serializer = URLSafeTimedSerializer("Hod2024")
     return serializer.dumps(email)
 
-def confirm_token(token, expiration=3600):
+def confirm_token(token, expiration=7200):
     serializer = URLSafeTimedSerializer("Hod2024")
     try:
         email = serializer.loads( token, max_age=expiration)
@@ -96,7 +97,7 @@ def register():
     send_email(new_user.email, subject, html)
 
     # login_user(user_data)
-    return jsonify({ 'message' : 'User created successfully and confirmation email sent', 'redirect': url_for(inactive), 'user': {
+    return jsonify({ 'message' : 'User created successfully and confirmation email sent', 'user': {
         'first_name': first_name,
         'last_name' : last_name,
         'email' : email,
@@ -105,10 +106,6 @@ def register():
         'confirmed_on' : confirmed_on
     }}), 201
    
-@app.route("/inactive")
-def inactive():
-    if user.is_confirmed:
-        return jsonify({'redirect':url_for('dashboard')})
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -139,21 +136,20 @@ def get_name():
     else:
         return jsonify({'message' : 'User not found'}), 404
     
-@app.route('/confirm/<token>')
-def confirm_email(token):
+@app.route('/api/confirm', methods=['GET'])
+def confirm_email():
+    token = request.args.get('token')
     email = confirm_token(token)
     user = User.query.filter_by(email = email).first_or_404()
     user.is_confirmed = True
     user.confirmed_on = datetime.now()
     db.session.add(user)
     db.session.commit()
-    flash('Account confirmed. Thank you!')
-    return jsonify({'success' : True, 'redirect_url' : '/get_name'})
+    return jsonify({'success' : True, 'redirect_url' : '/dashboard'})
 
 
 if __name__ == "__main__": 
     with app.app_context():   #Creates a db if it does not exist
         db.create_all()
-
     app.run(debug=True)
 
