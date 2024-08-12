@@ -91,10 +91,8 @@ def register():
     db.session.commit()
 
     token = generate_token(new_user.email)
-    # confirm_url = url_for("confirm_email", token=token, _external=True)
     base_url = "http://localhost:5173"
     confirm_url = f"{base_url}/confirm?token={token}"
-    # confirm_url = "localhost:5173/confirm?token="+ token;
     html = render_template("confirm_email.html", confirm_url=confirm_url)
     subject = "Please confirm your email"
     send_email(new_user.email, subject, html)
@@ -142,6 +140,7 @@ def get_name():
 @app.route('/api/confirm', methods=['GET'])
 def confirm_email():
     token = request.args.get('token')
+    print(f"Received token: {token} ")
     email = confirm_token(token)
     user = User.query.filter_by(email = email).first_or_404()
     user.is_confirmed = True

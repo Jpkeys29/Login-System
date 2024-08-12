@@ -1,15 +1,20 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 const AccountConfirmation = () => {
-    const {token} = useParams();
+    // const {token} = useParams();
+    const location = useLocation();
     const navigate = useNavigate();
+
+    const queryParams = new URLSearchParams(location.search);
+    const token = queryParams.get('token');
     
     useEffect (() => {
         const confirmEmail = async () => {
             try{
                 const response = await axios.get(`/api/confirm?token=${token}`);
+                console.log('Token:', token);
                 console.log('Response data:', response.data);
 
                 if (response.data.success) {
@@ -27,7 +32,7 @@ const AccountConfirmation = () => {
 
     return(
         <div>
-            <p>Confirming your email...</p>
+            <p>Confirming email...</p>
         </div>
     )
 }
