@@ -141,13 +141,18 @@ def get_name():
 def confirm_email():
     token = request.args.get('token')
     print(f"Received token: {token} ")
-    email = confirm_token(token)
-    user = User.query.filter_by(email = email).first_or_404()
-    user.is_confirmed = True
-    user.confirmed_on = datetime.now()
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({'success' : True, 'redirect_url' : '/dashboard'})
+    try:
+        email = confirm_token(token)
+        if not email:
+            return jsonify({'success': False, 'error': 'Invalid token'}), 400
+        user = User.query.filter_by(email = email).first_or_404()
+        user.is_confirmed = True
+        user.confirmed_on = datetime.now()
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'success' : True, 'redirect_url' : '/dashboard'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 if __name__ == "__main__": 

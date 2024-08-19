@@ -13,7 +13,7 @@ const AccountConfirmation = () => {
     useEffect (() => {
         const confirmEmail = async () => {
             try{
-                const response = await axios.get(`/api/confirm?token=${token}`);
+                const response = await axios.get(`http://127.0.0.1:5000/api/confirm?token=${token}`);
                 console.log('Token:', token);
                 console.log('Response data:', response.data);
 
@@ -32,7 +32,7 @@ const AccountConfirmation = () => {
 
     return(
         <div>
-            <p>Confirming email...</p>
+            <h2>Confirming email...</h2>
         </div>
     )
 }
