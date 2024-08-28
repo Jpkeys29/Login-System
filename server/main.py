@@ -150,7 +150,7 @@ def confirm_email():
         user.confirmed_on = datetime.now()
         db.session.add(user)
         db.session.commit()
-        return jsonify({'success' : True, 'redirect_url' : '/dashboard'})
+        return jsonify({'success' : True, 'redirect_url' : '/'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
