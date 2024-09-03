@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 const ToDoList = () => {
     const [task, setTask] = useState('')
     const [newTasks, setNewTasks] = useState([]);
-    const idCounter = newTasks.length === 0;
+    const newId = newTasks.length + 1;
 
     function handleAddTask() {
         if (task !== '') {
-            setNewTasks(prevTask => [...prevTask, { id: idCounter + 1, task }])
+            setNewTasks(prevTask => [...prevTask, { id: newId, task }])
         }
         setTask('');  //Clear input after adding task
     }
